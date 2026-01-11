@@ -32,6 +32,8 @@
         color: var(--text);
         transition: background 0.3s;
         line-height: 1.5;
+        /* Prevent horizontal scroll on small screens */
+        overflow-x: hidden;
       }
       body.dark {
         --bg: #0f172a;
@@ -42,9 +44,10 @@
       }
 
       .app {
+        width: 100%;
         max-width: 850px;
         margin: auto;
-        padding: 20px;
+        padding: 12px; /* Smaller padding for mobile */
       }
 
       /* --- HEADER --- */
@@ -52,12 +55,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
         border-bottom: 1px solid var(--border);
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: 1.25rem; /* Slightly smaller for mobile */
         margin: 0;
       }
 
@@ -65,99 +68,107 @@
         background: var(--card);
         color: var(--text);
         border: 1px solid var(--border);
-        padding: 8px 16px;
+        padding: 6px 12px;
         border-radius: 20px;
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         display: flex;
         align-items: center;
-        gap: 8px;
-      }
-      #theme-icon {
-        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: inline-block;
-      }
-      .rotate-icon {
-        transform: rotate(360deg) scale(1.2);
+        gap: 6px;
       }
 
       /* --- REQUIRED MARK --- */
       .required::after {
         content: " *";
-        color: #ef4444; /* Red color */
+        color: #ef4444;
         font-weight: bold;
       }
 
       /* --- CARD & SECTIONS --- */
       .card {
         background: var(--card);
-        border-radius: 16px;
-        padding: 24px;
+        border-radius: 12px;
+        padding: 16px; /* Reduced padding for mobile */
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        margin-bottom: 24px;
+        margin-bottom: 16px;
         border: 1px solid var(--border);
       }
       .section-header {
-        margin-bottom: 20px;
-        padding-bottom: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 6px;
         border-bottom: 2px solid var(--bg);
       }
       .section-title {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: var(--accent);
         font-weight: 800;
       }
 
+      /* MOBILE FIRST GRID: 1 column by default */
       .grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 16px;
       }
+
+      /* Switch to 2 columns only on larger screens */
       @media (min-width: 600px) {
+        .app {
+          padding: 20px;
+        }
+        .card {
+          padding: 24px;
+        }
         .grid-2 {
           grid-template-columns: 1fr 1fr;
+        }
+        h1 {
+          font-size: 1.5rem;
         }
       }
 
       label {
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         color: var(--secondary);
       }
       input,
       select {
         width: 100%;
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 8px;
         border: 1px solid var(--border);
         font-size: 1rem;
         background: var(--card);
         color: var(--text);
         outline: none;
         transition: all 0.2s;
-      }
-      input:focus {
-        border-color: var(--accent);
+        /* Prevent zoom on focus for iOS */
+        font-size: 16px;
       }
 
       /* --- BUTTONS --- */
       .row-presets {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2x2 grid on mobile */
         gap: 8px;
-        flex-wrap: wrap;
         margin-top: 10px;
       }
+      @media (min-width: 480px) {
+        .row-presets {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
       .row-presets button {
-        flex: 1;
-        min-width: 80px;
         background: var(--bg);
         color: var(--secondary);
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 700;
         border: 1px solid var(--border);
         padding: 10px;
@@ -180,7 +191,7 @@
         cursor: pointer;
         padding: 16px;
         border-radius: 12px;
-        margin-top: 20px;
+        margin-top: 16px;
         box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
         transition: all 0.3s ease;
       }
@@ -194,13 +205,19 @@
       /* --- RESULTS --- */
       .summary-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
+        grid-template-columns: 1fr; /* Stack results on mobile */
+        gap: 12px;
       }
+      @media (min-width: 480px) {
+        .summary-grid {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+      }
+
       .result-box {
         background: var(--bg);
         border-radius: 12px;
-        padding: 20px;
+        padding: 16px;
         text-align: center;
         border: 1px solid var(--border);
       }
@@ -209,32 +226,48 @@
         color: white;
         border: none;
       }
+      .result-box span {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        opacity: 0.8;
+      }
       .value {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 800;
-        margin-top: 5px;
+        margin-top: 4px;
       }
 
+      /* Responsive Tables */
       .table-container {
+        width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         margin-top: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
       }
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 500px;
+        min-width: 450px; /* Ensure content doesn't squeeze too much */
       }
       th,
       td {
-        padding: 12px;
+        padding: 10px;
         border-bottom: 1px solid var(--border);
         text-align: right;
+        font-size: 0.85rem;
       }
       th {
         background: var(--bg);
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: var(--secondary);
         text-transform: uppercase;
+      }
+
+      canvas {
+        max-width: 100%;
       }
     </style>
   </head>
@@ -254,12 +287,12 @@
         </div>
         <div class="grid grid-2">
           <div>
-            <label class="required">Start Date</label
-            ><input type="date" id="startDate" />
+            <label class="required">Start Date</label>
+            <input type="date" id="startDate" />
           </div>
           <div>
-            <label class="required">End Date</label
-            ><input type="date" id="endDate" />
+            <label class="required">End Date</label>
+            <input type="date" id="endDate" />
           </div>
         </div>
         <div class="row-presets" id="yearPresets">
@@ -270,11 +303,7 @@
         </div>
         <div style="margin-top: 15px">
           <label>Or Enter Months (optional)</label>
-          <input
-            type="number"
-            id="monthsInput"
-            placeholder="Calculated from dates"
-          />
+          <input type="number" id="monthsInput" placeholder="e.g. 15" />
         </div>
       </div>
 
@@ -289,7 +318,7 @@
               type="number"
               id="principal"
               step="0.01"
-              placeholder="0.00"
+              placeholder="Enter amount"
             />
           </div>
           <div class="grid grid-2">
@@ -333,18 +362,14 @@
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
+
       document.getElementById("startDate").valueAsDate = new Date();
 
-      // Theme Toggle Logic
       function toggleTheme() {
         const body = document.body;
         const icon = document.getElementById("theme-icon");
         const text = document.getElementById("theme-text");
-
         body.classList.toggle("dark");
-        icon.classList.add("rotate-icon");
-        setTimeout(() => icon.classList.remove("rotate-icon"), 500);
-
         const isDark = body.classList.contains("dark");
         icon.innerText = isDark ? "🌞" : "🌙";
         text.innerText = isDark ? "Light Mode" : "Dark Mode";
@@ -352,7 +377,6 @@
       }
       if (localStorage.theme === "dark") toggleTheme();
 
-      // Validation Logic
       function validateForm() {
         const p = document.getElementById("principal").value;
         const r = document.getElementById("rate").value;
@@ -360,11 +384,9 @@
         const e = document.getElementById("endDate").value;
         const m = document.getElementById("monthsInput").value;
         const btn = document.getElementById("calcBtn");
-
         const hasPrincipal = p && parseFloat(p) > 0;
         const hasRate = r && parseFloat(r) >= 0;
         const hasTime = m || (s && e);
-
         btn.disabled = !(hasPrincipal && hasRate && hasTime);
       }
 
@@ -408,7 +430,6 @@
         return (p / 100) * r;
       }
 
-      // Business Logic
       function calculate() {
         let p = parseFloat(document.getElementById("principal").value);
         let months = getMonths();
@@ -434,7 +455,6 @@
           mRows += `<tr><td>${month}</td><td>${formatINR(
             p
           )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
-
           if (i % 12 === 0) {
             if (logic === "compound") p += yearInt;
             labels.push("Y" + year);
@@ -454,7 +474,6 @@
         if (frac > 0) {
           let mi = monthlyInterest(p) * frac;
           totalInt += mi;
-          yearInt += mi;
           mRows += `<tr><td>${month}*</td><td>${formatINR(
             p
           )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
@@ -492,11 +511,17 @@
         </div>
         <div class="card"><canvas id="growthChart"></canvas></div>
         <div class="grid grid-2" style="margin-bottom:20px">
-            <button class="theme-toggle" style="justify-content:center" onclick="copyText()">📋 Copy Summary</button>
-            <button class="theme-toggle" style="justify-content:center" onclick="downloadImage()">📸 Screenshot</button>
+            <button class="theme-toggle" style="justify-content:center; padding:12px;" onclick="copyText()">📋 Copy Summary</button>
+            <button class="theme-toggle" style="justify-content:center; padding:12px;" onclick="downloadImage()">📸 Screenshot</button>
         </div>
-        <div class="card"><h3>📆 Yearly Breakdown</h3><div class="table-container"><table><tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div></div>
-        <div class="card"><h3>📅 Monthly History</h3><div class="table-container"><table><tr><th>Month</th><th>Principal</th><th>Interest</th><th>Acc. Interest</th></tr>${mRows}</table></div></div>
+        <div class="card">
+            <div class="section-header"><span class="section-title">📆 Yearly Breakdown</span></div>
+            <div class="table-container"><table><tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div>
+        </div>
+        <div class="card">
+            <div class="section-header"><span class="section-title">📅 Monthly History</span></div>
+            <div class="table-container"><table><tr><th>Month</th><th>Principal</th><th>Interest</th><th>Acc. Interest</th></tr>${mRows}</table></div>
+        </div>
     `;
 
         drawChart(labels, chartData);
@@ -505,28 +530,36 @@
           .scrollIntoView({ behavior: "smooth" });
       }
 
-    
       function drawChart(labels, data) {
-        new Chart(document.getElementById("growthChart"), {
+        const ctx = document.getElementById("growthChart").getContext("2d");
+        new Chart(ctx, {
           type: "line",
           data: {
             labels,
             datasets: [
               {
                 label: "Value",
-                data: data, // Use the 'data' parameter passed into the function
+                data: data,
                 borderColor: "#4f46e5",
+                backgroundColor: "rgba(79, 70, 229, 0.1)",
                 fill: true,
                 tension: 0.4,
+                pointRadius: 3,
               },
             ],
           },
           options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: false, ticks: { font: { size: 10 } } },
+              x: { ticks: { font: { size: 10 } } },
+            },
           },
         });
       }
+
       function copyText() {
         const t = window.shareData;
         navigator.clipboard.writeText(
