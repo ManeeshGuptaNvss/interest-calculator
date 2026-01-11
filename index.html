@@ -1,231 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interest Calculator Pro</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4f46e5">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interest Calculator Pro</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4f46e5" />
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-*{box-sizing:border-box;font-family:system-ui;}
-:root{
---bg:#f6f7fb;--card:#fff;--text:#111;--accent:#4f46e5;
-}
-body{margin:0;background:var(--bg);color:var(--text);}
-body.dark{--bg:#020617;--card:#020617;--text:#e5e7eb;--accent:#6366f1;}
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #1e293b;
+        --accent: #4f46e5;
+        --secondary: #64748b;
+        --border: #e2e8f0;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        transition: background 0.3s;
+        line-height: 1.5;
+      }
+      body.dark {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #f1f5f9;
+        --accent: #818cf8;
+        --border: #334155;
+      }
 
-.app{max-width:1000px;margin:auto;padding:14px}
-h1{text-align:center;font-size:1.4rem}
+      .app {
+        max-width: 850px;
+        margin: auto;
+        padding: 20px;
+      }
 
-.card{background:var(--card);border-radius:14px;padding:14px;
-box-shadow:0 8px 20px rgba(0,0,0,.08);margin-bottom:14px}
+      /* --- HEADER SECTION --- */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin: 0;
+      }
 
-.grid{display:grid;grid-template-columns:1fr;gap:10px}
-@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+      .theme-toggle {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+      }
+      #theme-icon {
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+      }
+      .rotate-icon {
+        transform: rotate(360deg) scale(1.2);
+      }
 
-label{font-weight:600;font-size:.9rem}
-input,select,button{
-width:100%;padding:10px;margin-top:6px;
-border-radius:10px;border:1px solid #ddd;font-size:1rem}
+      /* --- CARD & SECTIONING --- */
+      .card {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin-bottom: 24px;
+        border: 1px solid var(--border);
+      }
+      .section-header {
+        margin-bottom: 20px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--bg);
+      }
+      .section-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--accent);
+        font-weight: 800;
+      }
 
-button{background:var(--accent);color:#fff;border:none;font-weight:600;cursor:pointer}
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      @media (min-width: 600px) {
+        .grid-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
 
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row button{flex:1;background:#e5e7eb;color:#111}
-body.dark .row button{background:#1e293b;color:#fff}
+      label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 6px;
+        color: var(--secondary);
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 1rem;
+        background: var(--card);
+        color: var(--text);
+        outline: none;
+        transition: all 0.2s;
+      }
+      input:focus {
+        border-color: var(--accent);
+      }
 
-.summary{display:grid;grid-template-columns:1fr;gap:10px}
-@media(min-width:700px){.summary{grid-template-columns:repeat(3,1fr)}}
+      /* --- PRESETS --- */
+      .row-presets {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .row-presets button {
+        flex: 1;
+        min-width: 80px;
+        background: var(--bg);
+        color: var(--secondary);
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 1px solid var(--border);
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .row-presets button.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
 
-.box{background:#eef2ff;border-radius:12px;padding:12px;text-align:center;font-weight:700}
-body.dark .box{background:#020617;border:1px solid #1e293b}
-.box div{font-size:1.3rem;margin-top:4px;color:var(--accent)}
+      .calculate-btn {
+        width: 100%;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 16px;
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+      }
 
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
-th{background:#eef2ff;text-align:center}
-td:first-child,th:first-child{text-align:center}
-canvas{max-height:350px}
-</style>
-</head>
+      /* --- RESULTS --- */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .result-box {
+        background: var(--bg);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid var(--border);
+      }
+      .result-box.highlight {
+        background: var(--accent);
+        color: white;
+        border: none;
+      }
+      .value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-top: 5px;
+      }
 
-<body>
-<div class="app" id="app">
-<h1>📈 Interest Calculator Pro</h1>
+      .table-container {
+        overflow-x: auto;
+        margin-top: 15px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 500px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        text-align: right;
+      }
+      th {
+        background: var(--bg);
+        font-size: 0.75rem;
+        color: var(--secondary);
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
 
-<div class="card">
-<div class="row">
-<button onclick="setYears(1)">1 Year</button>
-<button onclick="setYears(3)">3 Years</button>
-<button onclick="setYears(5)">5 Years</button>
-<button onclick="setYears(10)">10 Years</button>
-<button onclick="toggleTheme()">🌗 Theme</button>
-</div>
+  <body>
+    <div class="app">
+      <header>
+        <h1>📈 Interest Pro</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+        </button>
+      </header>
 
-<div class="grid" style="margin-top:10px">
-<div><label>Start Date</label><input type="date" id="startDate"></div>
-<div><label>End Date</label><input type="date" id="endDate"></div>
-</div>
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title">1. Duration Selection</span>
+        </div>
+        <div class="grid grid-2">
+          <div>
+            <label>Start Date</label><input type="date" id="startDate" />
+          </div>
+          <div><label>End Date</label><input type="date" id="endDate" /></div>
+        </div>
+        <div class="row-presets" id="yearPresets">
+          <button onclick="setYears(1, this)">1 Year</button>
+          <button onclick="setYears(3, this)">3 Years</button>
+          <button onclick="setYears(5, this)">5 Years</button>
+          <button onclick="setYears(10, this)">10 Years</button>
+        </div>
+        <div style="margin-top: 15px">
+          <label>Or Enter Months (optional)</label>
+          <input type="number" id="monthsInput" placeholder="e.g. 15" />
+        </div>
+      </div>
 
-<label>Or Enter Months (optional)</label>
-<input type="number" id="monthsInput" placeholder="e.g. 15">
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title">2. Principal & Interest Logic</span>
+        </div>
+        <div class="grid">
+          <div>
+            <label>Principal (₹)</label>
+            <input
+              type="number"
+              id="principal"
+              step="0.01"
+              placeholder="Enter amount"
+            />
+          </div>
+          <div class="grid grid-2">
+            <div>
+              <label>Interest Logic</label>
+              <select id="logicType">
+                <option value="compound">Yearly Compound</option>
+                <option value="simple">Simple Interest</option>
+              </select>
+            </div>
+            <div>
+              <label>Interest Type</label>
+              <select id="interestType">
+                <option value="flat">₹ per month</option>
+                <option value="per100">₹ per month per 100</option>
+                <option value="percent">% per month</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label>Interest Value</label>
+            <input type="number" id="rate" step="0.01" placeholder="e.g. 2.0" />
+          </div>
+        </div>
+        <button class="calculate-btn" onclick="calculate()">CALCULATE</button>
+      </div>
 
-<label>Principal (₹)</label>
-<input type="number" id="principal" step="0.01">
+      <div id="outputWrapper"><div id="output"></div></div>
+    </div>
 
-<label>Interest Type</label>
-<select id="interestType">
-<option value="flat">₹ per month</option>
-<option value="per100">₹ per month per 100</option>
-<option value="percent">% per month</option>
-</select>
+    <script>
+      const formatINR = (n) =>
+        n.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
 
-<label>Interest Value</label>
-<input type="number" id="rate" step="0.01">
+      // Theme Logic with Animation
+      function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById("theme-icon");
+        const text = document.getElementById("theme-text");
 
-<button onclick="calculate()">Calculate</button>
-</div>
+        body.classList.toggle("dark");
+        icon.classList.add("rotate-icon");
+        setTimeout(() => icon.classList.remove("rotate-icon"), 500);
 
-<div id="outputWrapper"><div id="output"></div></div>
-</div>
+        const isDark = body.classList.contains("dark");
+        icon.innerText = isDark ? "🌞" : "🌙";
+        text.innerText = isDark ? "Light Mode" : "Dark Mode";
+        localStorage.theme = isDark ? "dark" : "light";
+      }
+      if (localStorage.theme === "dark") toggleTheme();
 
-<script>
-const formatINR=n=>n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+      function setYears(y, btn) {
+        document
+          .querySelectorAll("#yearPresets button")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+        const s = new Date();
+        const e = new Date();
+        e.setFullYear(s.getFullYear() + y);
+        startDate.value = s.toISOString().split("T")[0];
+        endDate.value = e.toISOString().split("T")[0];
+        monthsInput.value = y * 12;
+      }
 
-function toggleTheme(){
-document.body.classList.toggle("dark");
-localStorage.theme=document.body.classList.contains("dark")?"dark":"light";
-}
-if(localStorage.theme==="dark")document.body.classList.add("dark");
+      function getMonths() {
+        const m = parseFloat(monthsInput.value);
+        if (m > 0) return m;
+        const s = new Date(startDate.value),
+          e = new Date(endDate.value);
+        return (e - s) / (1000 * 60 * 60 * 24) / 30;
+      }
 
-function setYears(y){
-const s=new Date();
-const e=new Date();e.setFullYear(s.getFullYear()+y);
-startDate.value=s.toISOString().split("T")[0];
-endDate.value=e.toISOString().split("T")[0];
-monthsInput.value=y*12;
-}
+      function monthlyInterest(p) {
+        const r = parseFloat(rate.value);
+        if (interestType.value === "flat") return r;
+        if (interestType.value === "percent") return (p * r) / 100;
+        return (p / 100) * r;
+      }
 
-function getMonths(){
-const m=parseFloat(monthsInput.value);
-if(m>0)return m;
-const s=new Date(startDate.value),e=new Date(endDate.value);
-return (e-s)/(1000*60*60*24)/30;
-}
+      // RESTORED ORIGINAL BUSINESS LOGIC + LOGIC TYPE
+      function calculate() {
+        let p = parseFloat(principal.value);
+        let months = getMonths();
+        const logic = document.getElementById("logicType").value;
+        if (p <= 0 || months <= 0) return alert("Invalid input");
 
-function monthlyInterest(p){
-const r=parseFloat(rate.value);
-if(interestType.value==="flat")return r;
-if(interestType.value==="percent")return p*r/100;
-return (p/100)*r;
-}
+        let full = Math.floor(months),
+          frac = months - full;
+        let totalInt = 0,
+          yearInt = 0,
+          yearStart = p;
+        let mRows = "",
+          yRows = "";
+        let chartData = [p],
+          labels = ["Start"];
 
-function calculate(){
-let p=parseFloat(principal.value);
-let months=getMonths();
-if(p<=0||months<=0)return alert("Invalid input");
+        let month = 1,
+          year = 1;
 
-let full=Math.floor(months),frac=months-full;
-let totalInt=0,yearInt=0,yearStart=p;
-let mRows="",yRows="";
-let chartData=[p],labels=["Start"];
+        for (let i = 1; i <= full; i++) {
+          let mi = monthlyInterest(p);
+          yearInt += mi;
+          totalInt += mi;
 
-let month=1,year=1;
+          mRows += `<tr><td>${month}</td><td>${formatINR(
+            p
+          )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
 
-for(let i=1;i<=full;i++){
-let mi=monthlyInterest(p);
-yearInt+=mi;totalInt+=mi;
+          if (i % 12 === 0) {
+            // Business Logic: Only update 'p' if logic is set to Compound
+            if (logic === "compound") p += yearInt;
 
-mRows+=`<tr><td>${month}</td><td>${formatINR(p)}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
+            labels.push("Y" + year);
+            chartData.push(p);
 
-if(i%12===0){
-p+=yearInt;
-labels.push("Y"+year);
-chartData.push(p);
+            yRows += `<tr><td>${year}</td><td>${formatINR(
+              yearStart
+            )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(p)}</td></tr>`;
+            year++;
+            yearStart = p;
+            yearInt = 0;
+          }
+          month++;
+        }
 
-yRows+=`<tr><td>${year}</td><td>${formatINR(yearStart)}</td><td>${formatINR(yearInt)}</td><td>${formatINR(p)}</td></tr>`;
-year++;yearStart=p;yearInt=0;
-}
-month++;
-}
+        if (frac > 0) {
+          let mi = monthlyInterest(p) * frac;
+          totalInt += mi;
+          yearInt += mi;
+          mRows += `<tr><td>${month}*</td><td>${formatINR(
+            p
+          )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
+        }
 
-if(frac>0){
-let mi=monthlyInterest(p)*frac;
-totalInt+=mi;yearInt+=mi;
-mRows+=`<tr><td>${month}*</td><td>${formatINR(p)}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
-}
+        if (yearInt > 0) {
+          const finalP = logic === "compound" ? p + yearInt : p;
+          yRows += `<tr><td>${year}*</td><td>${formatINR(
+            yearStart
+          )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(
+            finalP
+          )}</td></tr>`;
+          p = finalP;
+          labels.push("Final");
+          chartData.push(p);
+        }
 
-if(yearInt>0){
-yRows+=`<tr><td>${year}*</td><td>${formatINR(yearStart)}</td><td>${formatINR(yearInt)}</td><td>${formatINR(p+yearInt)}</td></tr>`;
-p+=yearInt;
-labels.push("Final");chartData.push(p);
-}
+        window.shareData = { p, totalInt, months };
 
-window.shareData={p,totalInt,months};
+        output.innerHTML = `
+    <div class="card summary-grid">
+        <div class="result-box"><span>Principal</span><div class="value">₹${formatINR(
+          parseFloat(principal.value)
+        )}</div></div>
+        <div class="result-box"><span>Interest Earned</span><div class="value">₹${formatINR(
+          totalInt
+        )}</div></div>
+        <div class="result-box highlight"><span>Total Amount</span><div class="value">₹${formatINR(
+          p
+        )}</div></div>
+    </div>
 
-output.innerHTML=`
-<div class="card summary">
-<div class="box">Principal<div>₹ ${formatINR(principal.value)}</div></div>
-<div class="box">Total Interest<div>₹ ${formatINR(totalInt)}</div></div>
-<div class="box">Final Amount<div>₹ ${formatINR(p)}</div></div>
-</div>
+    <div class="card"><canvas id="growthChart"></canvas></div>
 
-<div class="card">
-<canvas id="growthChart"></canvas>
-</div>
+    <div class="grid grid-2" style="margin-bottom: 24px;">
+        <button class="theme-toggle" style="justify-content:center" onclick="copyText()">📋 Copy Summary</button>
+        <button class="theme-toggle" style="justify-content:center" onclick="downloadImage()">📸 Screenshot</button>
+    </div>
 
-<div class="card row">
-<button onclick="copyText()">📋 Copy Summary</button>
-<button onclick="downloadImage()">📸 Screenshot</button>
-</div>
+    <div class="card"><h3>📆 Yearly Breakdown</h3><div class="table-container"><table>
+    <tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div></div>
 
-<div class="card"><h3>📆 Yearly</h3><table>
-<tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div>
+    <div class="card"><h3>📅 Monthly History</h3><div class="table-container"><table>
+    <tr><th>Month</th><th>Principal</th><th>Interest</th><th>Acc. Interest</th></tr>${mRows}</table></div></div>
+    `;
 
-<div class="card"><h3>📅 Monthly</h3><table>
-<tr><th>Month</th><th>Principal</th><th>Interest</th><th>Total Interest</th></tr>${mRows}</table></div>
-`;
+        drawChart(labels, chartData);
+        document
+          .getElementById("output")
+          .scrollIntoView({ behavior: "smooth" });
+      }
 
-drawChart(labels,chartData);
-}
+      function drawChart(labels, data) {
+        new Chart(document.getElementById("growthChart"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Total Value",
+                data,
+                borderColor: "#4f46e5",
+                fill: true,
+                tension: 0.4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+          },
+        });
+      }
 
-function drawChart(labels,data){
-new Chart(document.getElementById("growthChart"),{
-type:"line",
-data:{labels,datasets:[{label:"Principal Growth",data,tension:.3}]},
-options:{responsive:true,plugins:{legend:{display:false}}}
-});
-}
+      function downloadImage() {
+        html2canvas(document.getElementById("outputWrapper"), {
+          scale: 2,
+          backgroundColor:
+            localStorage.theme === "dark" ? "#0f172a" : "#f8fafc",
+        }).then((c) => {
+          let a = document.createElement("a");
+          a.href = c.toDataURL();
+          a.download = "interest.png";
+          a.click();
+        });
+      }
 
-function downloadImage(){
-html2canvas(document.getElementById("outputWrapper"),{scale:2})
-.then(c=>{
-let a=document.createElement("a");
-a.href=c.toDataURL();a.download="interest.png";a.click();
-});
-}
-
-function copyText(){
-const t=window.shareData;
-navigator.clipboard.writeText(
-`Interest Summary
-Principal: ₹ ${formatINR(principal.value)}
-Interest: ₹ ${formatINR(t.totalInt)}
-Final: ₹ ${formatINR(t.p)}
-Duration: ${t.months.toFixed(2)} months`);
-alert("Copied ✅");
-}
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js")
-    .then(() => console.log("PWA ready"))
-    .catch(err => console.error("SW failed", err));
-}
-</script>
-</body>
+      function copyText() {
+        const t = window.shareData;
+        navigator.clipboard.writeText(
+          `Interest Summary\nPrincipal: ₹${formatINR(
+            parseFloat(principal.value)
+          )}\nInterest: ₹${formatINR(t.totalInt)}\nFinal: ₹${formatINR(
+            t.p
+          )}\nDuration: ${t.months.toFixed(2)} months`
+        );
+        alert("Copied ✅");
+      }
+    </script>
+  </body>
 </html>
