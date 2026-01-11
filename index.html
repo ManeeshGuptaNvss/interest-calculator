@@ -6,8 +6,7 @@
     <title>Interest Calculator Pro</title>
     <link
       rel="icon"
-      type="image/png"
-      href="icons/android/android-launchericon-48-48.png"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>"
     />
 
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -32,7 +31,6 @@
         color: var(--text);
         transition: background 0.3s;
         line-height: 1.5;
-        /* Prevent horizontal scroll on small screens */
         overflow-x: hidden;
       }
       body.dark {
@@ -45,9 +43,9 @@
 
       .app {
         width: 100%;
-        max-width: 850px;
+        max-width: 900px;
         margin: auto;
-        padding: 12px; /* Smaller padding for mobile */
+        padding: 12px;
       }
 
       /* --- HEADER --- */
@@ -60,10 +58,9 @@
         border-bottom: 1px solid var(--border);
       }
       h1 {
-        font-size: 1.25rem; /* Slightly smaller for mobile */
+        font-size: 1.25rem;
         margin: 0;
       }
-
       .theme-toggle {
         background: var(--card);
         color: var(--text);
@@ -78,18 +75,20 @@
         gap: 6px;
       }
 
-      /* --- REQUIRED MARK --- */
-      .required::after {
-        content: " *";
-        color: #ef4444;
-        font-weight: bold;
+      /* ANIMATION RESTORED HERE */
+      #theme-icon {
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+      }
+      .rotate-icon {
+        transform: rotate(360deg) scale(1.2);
       }
 
-      /* --- CARD & SECTIONS --- */
+      /* --- CARDS & GRID --- */
       .card {
         background: var(--card);
         border-radius: 12px;
-        padding: 16px; /* Reduced padding for mobile */
+        padding: 16px;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         margin-bottom: 16px;
         border: 1px solid var(--border);
@@ -98,6 +97,9 @@
         margin-bottom: 16px;
         padding-bottom: 6px;
         border-bottom: 2px solid var(--bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
       .section-title {
         font-size: 0.8rem;
@@ -107,14 +109,11 @@
         font-weight: 800;
       }
 
-      /* MOBILE FIRST GRID: 1 column by default */
       .grid {
         display: grid;
         grid-template-columns: 1fr;
         gap: 16px;
       }
-
-      /* Switch to 2 columns only on larger screens */
       @media (min-width: 600px) {
         .app {
           padding: 20px;
@@ -128,8 +127,14 @@
         h1 {
           font-size: 1.5rem;
         }
+        .chart-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 20px;
+        }
       }
 
+      /* --- INPUTS & SLIDERS --- */
       label {
         font-weight: 600;
         font-size: 0.8rem;
@@ -137,6 +142,12 @@
         margin-bottom: 4px;
         color: var(--secondary);
       }
+      .required::after {
+        content: " *";
+        color: #ef4444;
+        font-weight: bold;
+      }
+
       input,
       select {
         width: 100%;
@@ -148,23 +159,41 @@
         color: var(--text);
         outline: none;
         transition: all 0.2s;
-        /* Prevent zoom on focus for iOS */
-        font-size: 16px;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+
+      /* Range Slider Styling */
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        background: var(--border);
+        border-radius: 5px;
+        outline: none;
+        margin-top: 10px;
+        padding: 0;
+        border: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
       }
 
       /* --- BUTTONS --- */
       .row-presets {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2x2 grid on mobile */
+        grid-template-columns: repeat(4, 1fr);
         gap: 8px;
         margin-top: 10px;
       }
-      @media (min-width: 480px) {
-        .row-presets {
-          grid-template-columns: repeat(4, 1fr);
-        }
-      }
-
       .row-presets button {
         background: var(--bg);
         color: var(--secondary);
@@ -202,10 +231,35 @@
         opacity: 0.6;
       }
 
+      /* --- HISTORY SECTION --- */
+      .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .history-item:hover {
+        background: var(--bg);
+      }
+      .history-item:last-child {
+        border-bottom: none;
+      }
+      .history-details {
+        font-size: 0.8rem;
+        color: var(--secondary);
+      }
+      .history-amount {
+        font-weight: 700;
+        color: var(--accent);
+      }
+
       /* --- RESULTS --- */
       .summary-grid {
         display: grid;
-        grid-template-columns: 1fr; /* Stack results on mobile */
+        grid-template-columns: 1fr;
         gap: 12px;
       }
       @media (min-width: 480px) {
@@ -213,7 +267,6 @@
           grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         }
       }
-
       .result-box {
         background: var(--bg);
         border-radius: 12px;
@@ -238,19 +291,15 @@
         margin-top: 4px;
       }
 
-      /* Responsive Tables */
       .table-container {
         width: 100%;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
         margin-top: 15px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
       }
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 450px; /* Ensure content doesn't squeeze too much */
+        min-width: 450px;
       }
       th,
       td {
@@ -265,7 +314,6 @@
         color: var(--secondary);
         text-transform: uppercase;
       }
-
       canvas {
         max-width: 100%;
       }
@@ -277,7 +325,7 @@
       <header>
         <h1>📈 Interest Pro</h1>
         <button class="theme-toggle" onclick="toggleTheme()">
-          <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+          <span id="theme-icon">🌙</span> <span id="theme-text"></span>
         </button>
       </header>
 
@@ -287,60 +335,95 @@
         </div>
         <div class="grid grid-2">
           <div>
-            <label class="required">Start Date</label>
-            <input type="date" id="startDate" />
+            <label class="required">Start Date</label
+            ><input type="date" id="startDate" />
           </div>
           <div>
-            <label class="required">End Date</label>
-            <input type="date" id="endDate" />
+            <label class="required">End Date</label
+            ><input type="date" id="endDate" />
           </div>
         </div>
         <div class="row-presets" id="yearPresets">
-          <button onclick="setYears(1, this)">1 Year</button>
-          <button onclick="setYears(3, this)">3 Years</button>
-          <button onclick="setYears(5, this)">5 Years</button>
-          <button onclick="setYears(10, this)">10 Years</button>
+          <button onclick="setYears(1, this)">1Y</button>
+          <button onclick="setYears(3, this)">3Y</button>
+          <button onclick="setYears(5, this)">5Y</button>
+          <button onclick="setYears(10, this)">10Y</button>
         </div>
         <div style="margin-top: 15px">
-          <label>Or Enter Months (optional)</label>
+          <label>Or Enter Months</label>
           <input type="number" id="monthsInput" placeholder="e.g. 15" />
         </div>
       </div>
 
       <div class="card">
         <div class="section-header">
-          <span class="section-title">2. Financial Settings</span>
+          <span class="section-title">2. Financials</span>
         </div>
         <div class="grid">
           <div>
             <label class="required">Principal Amount (₹)</label>
             <input
-              type="number"
+              type="text"
               id="principal"
-              step="0.01"
-              placeholder="Enter amount"
+              placeholder="0.00"
+              onblur="formatInput(this)"
+              onfocus="unformatInput(this)"
+            />
+            <input
+              type="range"
+              id="principalRange"
+              min="1000"
+              max="10000000"
+              step="1000"
+              value="0"
             />
           </div>
+
           <div class="grid grid-2">
-            <div>
-              <label class="required">Interest Logic</label>
-              <select id="logicType">
-                <option value="simple">Simple Interest</option>
-                <option value="compound">Yearly Compound</option>
-              </select>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div>
+                <label class="required">Logic</label>
+                <select id="logicType" onchange="toggleCompoundFreq()">
+                  <option value="simple">Simple Interest</option>
+                  <option value="compound">Compound Interest</option>
+                </select>
+              </div>
+              <div id="freqContainer" style="display: none">
+                <label>Frequency</label>
+                <select id="compoundFreq">
+                  <option value="12">Yearly</option>
+                  <option value="6">Half-Yearly</option>
+                  <option value="3">Quarterly</option>
+                  <option value="1">Monthly</option>
+                </select>
+              </div>
             </div>
+
             <div>
-              <label class="required">Interest Type</label>
-              <select id="interestType">
-                <option value="flat">₹ per month</option>
-                <option value="per100">₹ per month per 100</option>
-                <option value="percent">% per month</option>
-              </select>
+              <label class="required">Interest Rate</label>
+              <div style="display: flex; gap: 5px">
+                <input
+                  type="number"
+                  id="rate"
+                  step="0.01"
+                  placeholder="e.g. 2.0"
+                  style="flex: 1"
+                />
+                <select id="interestType" style="flex: 1">
+                  <option value="flat">₹ / mo</option>
+                  <option value="per100">₹ / 100 / mo</option>
+                  <option value="percent">% / mo</option>
+                </select>
+              </div>
+              <input
+                type="range"
+                id="rateRange"
+                min="0.1"
+                max="10"
+                step="0.1"
+                value="2"
+              />
             </div>
-          </div>
-          <div>
-            <label class="required">Interest Value / Rate</label>
-            <input type="number" id="rate" step="0.01" placeholder="e.g. 2.0" />
           </div>
         </div>
         <button
@@ -353,49 +436,125 @@
         </button>
       </div>
 
-      <div id="outputWrapper"><div id="output"></div></div>
+      <div id="outputWrapper">
+        <div id="output"></div>
+      </div>
+
+      <div class="card" id="historyCard" style="display: none">
+        <div class="section-header">
+          <span class="section-title">🕒 Recent History</span>
+        </div>
+        <div id="historyList"></div>
+        <div style="text-align: right; margin-top: 10px">
+          <button
+            onclick="clearHistory()"
+            style="
+              background: none;
+              border: none;
+              color: var(--secondary);
+              font-size: 0.8rem;
+              cursor: pointer;
+              text-decoration: underline;
+            "
+          >
+            Clear History
+          </button>
+        </div>
+      </div>
     </div>
 
     <script>
-      const formatINR = (n) =>
-        n.toLocaleString("en-IN", {
+      // FIX: SAFE CURRENCY FORMATTER
+      const formatINR = (n) => {
+        if (n === null || n === undefined || isNaN(n)) return "0.00";
+        return n.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
+      };
 
+      // Initialize
       document.getElementById("startDate").valueAsDate = new Date();
+      let charts = {}; // Store chart instances
 
+      // --- THEME ---
       function toggleTheme() {
-        const body = document.body;
+        document.body.classList.toggle("dark");
         const icon = document.getElementById("theme-icon");
-        const text = document.getElementById("theme-text");
-        body.classList.toggle("dark");
-        const isDark = body.classList.contains("dark");
+
+        // ANIMATION LOGIC RESTORED
+        icon.classList.add("rotate-icon");
+        setTimeout(() => icon.classList.remove("rotate-icon"), 500);
+
+        const isDark = document.body.classList.contains("dark");
         icon.innerText = isDark ? "🌞" : "🌙";
-        text.innerText = isDark ? "Light Mode" : "Dark Mode";
         localStorage.theme = isDark ? "dark" : "light";
+        if (charts.growth) updateChartsTheme();
       }
       if (localStorage.theme === "dark") toggleTheme();
 
+      // --- SLIDER LOGIC ---
+      const pInput = document.getElementById("principal");
+      const pRange = document.getElementById("principalRange");
+      const rInput = document.getElementById("rate");
+      const rRange = document.getElementById("rateRange");
+
+      pRange.addEventListener("input", (e) => {
+        pInput.value = parseInt(e.target.value).toLocaleString("en-IN");
+        validateForm();
+      });
+      rRange.addEventListener("input", (e) => {
+        rInput.value = e.target.value;
+        validateForm();
+      });
+      // Sync inputs back to sliders
+      pInput.addEventListener("input", (e) => {
+        let val = parseFloat(e.target.value.replace(/,/g, ""));
+        if (!isNaN(val)) pRange.value = val;
+        validateForm();
+      });
+      rInput.addEventListener("input", (e) => {
+        rRange.value = e.target.value;
+        validateForm();
+      });
+
+      // --- INPUT FORMATTING ---
+      function formatInput(el) {
+        let val = parseFloat(el.value.replace(/,/g, ""));
+        if (!isNaN(val)) el.value = val.toLocaleString("en-IN");
+      }
+      function unformatInput(el) {
+        el.value = el.value.replace(/,/g, "");
+      }
+
+      // --- COMPOUND FREQUENCY TOGGLE ---
+      function toggleCompoundFreq() {
+        const logic = document.getElementById("logicType").value;
+        document.getElementById("freqContainer").style.display =
+          logic === "compound" ? "block" : "none";
+      }
+
+      // --- VALIDATION ---
       function validateForm() {
-        const p = document.getElementById("principal").value;
+        const pStr = document
+          .getElementById("principal")
+          .value.replace(/,/g, "");
+        const p = parseFloat(pStr);
         const r = document.getElementById("rate").value;
         const s = document.getElementById("startDate").value;
         const e = document.getElementById("endDate").value;
         const m = document.getElementById("monthsInput").value;
-        const btn = document.getElementById("calcBtn");
-        const hasPrincipal = p && parseFloat(p) > 0;
-        const hasRate = r && parseFloat(r) >= 0;
+
         const hasTime = m || (s && e);
-        btn.disabled = !(hasPrincipal && hasRate && hasTime);
+        const isValid = p > 0 && r >= 0 && hasTime;
+        document.getElementById("calcBtn").disabled = !isValid;
       }
 
-      ["principal", "rate", "startDate", "endDate", "monthsInput"].forEach(
-        (id) => {
-          document.getElementById(id).addEventListener("input", validateForm);
-        }
-      );
+      ["monthsInput", "startDate", "endDate"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", validateForm);
+      });
 
+      // --- DATE & MONTHS ---
       function setYears(y, btn) {
         document
           .querySelectorAll("#yearPresets button")
@@ -419,9 +578,10 @@
         if (m > 0) return m;
         const s = new Date(document.getElementById("startDate").value);
         const e = new Date(document.getElementById("endDate").value);
-        return (e - s) / (1000 * 60 * 60 * 24) / 30;
+        return (e - s) / (1000 * 60 * 60 * 24) / 30.4375; // More precise
       }
 
+      // --- CALCULATION CORE ---
       function monthlyInterest(p) {
         const r = parseFloat(document.getElementById("rate").value);
         const type = document.getElementById("interestType").value;
@@ -431,147 +591,253 @@
       }
 
       function calculate() {
-        let p = parseFloat(document.getElementById("principal").value);
+        const pRaw = document
+          .getElementById("principal")
+          .value.replace(/,/g, "");
+        let p = parseFloat(pRaw);
+        let initialP = p;
         let months = getMonths();
         const logic = document.getElementById("logicType").value;
+        const freq = parseInt(document.getElementById("compoundFreq").value); // Months per compound
+
         if (p <= 0 || months <= 0) return alert("Invalid Input");
 
         let full = Math.floor(months),
           frac = months - full;
         let totalInt = 0,
-          yearInt = 0,
-          yearStart = p;
+          accruedInt = 0;
         let mRows = "",
           yRows = "",
           labels = ["Start"],
           chartData = [p];
-        let month = 1,
-          year = 1;
+        let yearStart = p;
+
+        // Loop Vars
+        let month = 1;
 
         for (let i = 1; i <= full; i++) {
           let mi = monthlyInterest(p);
-          yearInt += mi;
+          accruedInt += mi;
           totalInt += mi;
-          mRows += `<tr><td>${month}</td><td>${formatINR(
-            p
-          )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
-          if (i % 12 === 0) {
-            if (logic === "compound") p += yearInt;
-            labels.push("Y" + year);
-            chartData.push(p + (logic === "simple" ? totalInt : 0));
-            yRows += `<tr><td>${year}</td><td>${formatINR(
-              yearStart
-            )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(
-              p + (logic === "simple" ? totalInt : 0)
-            )}</td></tr>`;
-            year++;
-            yearStart = p;
-            yearInt = 0;
+
+          mRows += `<tr><td>${i}</td><td>${formatINR(p)}</td><td>${formatINR(
+            mi
+          )}</td><td>${formatINR(totalInt)}</td></tr>`;
+
+          // Compounding Logic
+          if (logic === "compound" && i % freq === 0) {
+            p += accruedInt;
+            accruedInt = 0; // Reset after adding to principal
           }
-          month++;
+
+          // Chart Data (Yearly points)
+          if (i % 12 === 0) {
+            let currentVal =
+              logic === "compound" ? p + accruedInt : initialP + totalInt;
+            let yearNum = i / 12;
+            labels.push("Y" + yearNum);
+            chartData.push(currentVal);
+            yRows += `<tr><td>${yearNum}</td><td>${formatINR(
+              yearStart
+            )}</td><td>${formatINR(currentVal - yearStart)}</td><td>${formatINR(
+              currentVal
+            )}</td></tr>`;
+            yearStart = currentVal;
+          }
         }
 
+        // Partial Month
         if (frac > 0) {
           let mi = monthlyInterest(p) * frac;
           totalInt += mi;
-          mRows += `<tr><td>${month}*</td><td>${formatINR(
+          accruedInt += mi;
+          mRows += `<tr><td>${(full + frac).toFixed(1)}*</td><td>${formatINR(
             p
           )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
         }
 
-        if (yearInt > 0) {
-          const finalP = logic === "compound" ? p + yearInt : p;
-          yRows += `<tr><td>${year}*</td><td>${formatINR(
-            yearStart
-          )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(
-            finalP + (logic === "simple" ? totalInt : 0)
-          )}</td></tr>`;
-          p = finalP;
-          labels.push("Final");
-          chartData.push(p + (logic === "simple" ? totalInt : 0));
-        }
+        // Final Totals
+        let finalAmount =
+          logic === "compound" ? p + accruedInt : initialP + totalInt;
+
+        // Save to History
+        saveHistory(initialP, totalInt, finalAmount, months);
 
         window.shareData = {
-          p: p + (logic === "simple" ? totalInt : 0),
+          p: finalAmount,
           totalInt,
           months,
+          principal: initialP,
         };
 
         document.getElementById("output").innerHTML = `
         <div class="card summary-grid">
             <div class="result-box"><span>Principal</span><div class="value">₹${formatINR(
-              parseFloat(document.getElementById("principal").value)
+              initialP
             )}</div></div>
-            <div class="result-box"><span>Interest Earned</span><div class="value">₹${formatINR(
+            <div class="result-box"><span>Interest</span><div class="value">₹${formatINR(
               totalInt
             )}</div></div>
-            <div class="result-box highlight"><span>Total Amount</span><div class="value">₹${formatINR(
-              window.shareData.p
+            <div class="result-box highlight"><span>Total Value</span><div class="value">₹${formatINR(
+              finalAmount
             )}</div></div>
         </div>
-        <div class="card"><canvas id="growthChart"></canvas></div>
-        <div class="grid grid-2" style="margin-bottom:20px">
-            <button class="theme-toggle" style="justify-content:center; padding:12px;" onclick="copyText()">📋 Copy Summary</button>
-            <button class="theme-toggle" style="justify-content:center; padding:12px;" onclick="downloadImage()">📸 Screenshot</button>
+        
+        <div class="card chart-grid">
+            <div><canvas id="growthChart"></canvas></div>
+            <div style="max-height:250px; display:flex; justify-content:center;"><canvas id="pieChart"></canvas></div>
         </div>
+
+        <div class="grid grid-2" style="margin-bottom:20px">
+            <button class="calculate-btn" style="margin-top:0; background:var(--secondary)" onclick="copyText()">📋 Copy</button>
+            <button class="calculate-btn" style="margin-top:0; background:var(--secondary)" onclick="downloadImage()">📸 Save</button>
+        </div>
+
         <div class="card">
             <div class="section-header"><span class="section-title">📆 Yearly Breakdown</span></div>
-            <div class="table-container"><table><tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div>
+            <div class="table-container"><table><tr><th>Year</th><th>Open</th><th>Growth</th><th>Close</th></tr>${yRows}</table></div>
         </div>
         <div class="card">
             <div class="section-header"><span class="section-title">📅 Monthly History</span></div>
-            <div class="table-container"><table><tr><th>Month</th><th>Principal</th><th>Interest</th><th>Acc. Interest</th></tr>${mRows}</table></div>
+            <div class="table-container"><table><tr><th>Mo</th><th>Base</th><th>Int.</th><th>Total Int.</th></tr>${mRows}</table></div>
         </div>
-    `;
+        `;
 
-        drawChart(labels, chartData);
+        drawCharts(labels, chartData, initialP, totalInt);
         document
           .getElementById("output")
           .scrollIntoView({ behavior: "smooth" });
+        loadHistory(); // Refresh history UI
       }
 
-      function drawChart(labels, data) {
-        const ctx = document.getElementById("growthChart").getContext("2d");
-        new Chart(ctx, {
+      // --- CHARTING ---
+      function drawCharts(labels, data, p, int) {
+        // Destroy old instances
+        if (charts.growth) charts.growth.destroy();
+        if (charts.pie) charts.pie.destroy();
+
+        // Line Chart
+        charts.growth = new Chart(document.getElementById("growthChart"), {
           type: "line",
           data: {
             labels,
             datasets: [
               {
-                label: "Value",
+                label: "Growth",
                 data: data,
                 borderColor: "#4f46e5",
                 backgroundColor: "rgba(79, 70, 229, 0.1)",
                 fill: true,
                 tension: 0.4,
-                pointRadius: 3,
               },
             ],
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
             plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: false, ticks: { font: { size: 10 } } },
-              x: { ticks: { font: { size: 10 } } },
-            },
           },
+        });
+
+        // Pie Chart
+        charts.pie = new Chart(document.getElementById("pieChart"), {
+          type: "doughnut",
+          data: {
+            labels: ["Principal", "Interest"],
+            datasets: [
+              {
+                data: [p, int],
+                backgroundColor: ["#cbd5e1", "#4f46e5"],
+              },
+            ],
+          },
+          options: { responsive: true, maintainAspectRatio: false },
         });
       }
 
+      // --- HISTORY SYSTEM (SAFE) ---
+      function saveHistory(p, i, t, m) {
+        let history = [];
+        try {
+          history = JSON.parse(localStorage.getItem("calcHistory") || "[]");
+        } catch (e) {
+          history = [];
+        }
+
+        const entry = {
+          date: new Date().toLocaleDateString(),
+          p: p,
+          i: i,
+          total: t,
+          desc: `₹${formatINR(p)} for ${m.toFixed(1)} mo`,
+        };
+        history.unshift(entry);
+        if (history.length > 5) history.pop();
+        localStorage.setItem("calcHistory", JSON.stringify(history));
+      }
+
+      function loadHistory() {
+        const list = document.getElementById("historyList");
+        const card = document.getElementById("historyCard");
+        let history = [];
+
+        try {
+          history = JSON.parse(localStorage.getItem("calcHistory") || "[]");
+        } catch (e) {
+          console.error("History corrupted, resetting.");
+          localStorage.removeItem("calcHistory");
+          return;
+        }
+
+        if (!Array.isArray(history) || history.length === 0) {
+          card.style.display = "none";
+          return;
+        }
+
+        card.style.display = "block";
+        list.innerHTML = "";
+
+        history.forEach((h) => {
+          if (!h || h.total === undefined) return;
+
+          let div = document.createElement("div");
+          div.className = "history-item";
+          div.innerHTML = `
+                <div class="history-details">
+                    <div>${h.date || "-"}</div>
+                    <div>${h.desc || "-"}</div>
+                </div>
+                <div class="history-amount">₹${formatINR(h.total)}</div>
+              `;
+          div.onclick = () => {
+            if (h.p)
+              document.getElementById("principal").value =
+                h.p.toLocaleString("en-IN");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          };
+          list.appendChild(div);
+        });
+      }
+
+      function clearHistory() {
+        localStorage.removeItem("calcHistory");
+        loadHistory();
+      }
+
+      // Load on start
+      loadHistory();
+
+      // --- EXPORT TOOLS ---
       function copyText() {
         const t = window.shareData;
         navigator.clipboard.writeText(
           `Interest Summary\nPrincipal: ₹${formatINR(
-            parseFloat(document.getElementById("principal").value)
+            t.principal
           )}\nInterest: ₹${formatINR(t.totalInt)}\nTotal: ₹${formatINR(
             t.p
           )}\nDuration: ${t.months.toFixed(2)} months`
         );
         alert("Copied ✅");
       }
-
       function downloadImage() {
         html2canvas(document.getElementById("outputWrapper"), {
           scale: 2,
@@ -580,7 +846,7 @@
         }).then((c) => {
           let a = document.createElement("a");
           a.href = c.toDataURL();
-          a.download = "interest.png";
+          a.download = "interest-pro.png";
           a.click();
         });
       }
