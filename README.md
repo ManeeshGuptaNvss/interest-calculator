@@ -1,37 +1,73 @@
 # 📈 Interest Calculator Pro
 
-A mobile-first, installable web app to calculate **simple monthly interest compounded yearly** with detailed monthly and yearly breakdowns.
+A modern, mobile-first web app to calculate **Simple Interest** or **Yearly Compound Interest** with detailed visualizations and breakdowns. 
 
-Built for **personal finance tracking and projections**.
-
----
-
-## 🚀 Features
-
-- Simple monthly interest, **compounded yearly**
-- Interest modes:
-  - ₹ per month  
-  - ₹ per month per ₹100  
-  - % per month  
-- Supports **date range or direct month input**
-- Partial month calculation (days → fraction of month)
-- 📅 Monthly breakdown table  
-- 📆 Yearly summary table  
-- 📊 Growth chart visualization  
-- 🇮🇳 Indian number formatting (11,22,334.50)  
-- 📋 Copy shareable summary text  
-- 📸 Download screenshot of results  
-- 🌗 Light / Dark theme (saved)  
-- 📱 Mobile-first responsive UI  
-- 📦 PWA support (installable, offline use)
+Built for precise **personal finance tracking**, allowing users to project growth over customized durations.
 
 ---
 
-## 🧠 Interest Logic
+## 🚀 Key Features
 
-- Interest is calculated **every month**
-- Interest is **not added immediately**
-- After every **12 months**, accumulated interest is added to principal
-- New principal is used for the next year
-- Partial months are calculated as:
+### 🧮 Flexible Calculation Logic
+- **Two Calculation Modes:**
+  - **Simple Interest:** Interest accumulates separately and is not added to the principal.
+  - **Yearly Compound:** Accumulated interest is added to the principal every 12 months.
+- **Three Interest Rate Types:**
+  - ₹ Fixed amount per month
+  - ₹ Per month per ₹100 (Traditional Indian method)
+  - % Per month
 
+### ⚡ Smart Inputs & Validation
+- **Smart Duration Sync:** Automatically syncs "Date Range" with "Month Count" input.
+- **Quick Presets:** One-tap buttons for 1, 3, 5, and 10-year durations.
+- **Input Validation:** The "Calculate" button remains disabled until all required fields are valid (marked with red asterisks).
+
+### 📊 Visuals & Reporting
+- **Interactive Growth Chart:** Visualize principal vs. total value over time.
+- **Detailed Breakdowns:**
+  - 📅 **Monthly Table:** Month-by-month accrual history.
+  - 📆 **Yearly Table:** Annual summary of opening/closing balances.
+- **Shareable Results:**
+  - 📋 **Copy Summary:** Copies a formatted text summary to the clipboard.
+  - 📸 **Screenshot:** Generates and downloads a clean PNG image of the results.
+
+### 🎨 UI & Accessibility
+- **Modern "Card" Layout:** Sectioned interface for better readability on all devices.
+- **Mobile-First Design:** Optimized touch targets, spacing, and responsive grids.
+- **Animated Theme:** Smooth toggle between **Light** 🌞 and **Dark** 🌙 modes (preference saved).
+- **🇮🇳 Indian Formatting:** Numbers formatted as 1,12,345.00 for local relevance.
+- **PWA Support:** Installable as an app on Android/iOS/Desktop.
+
+---
+
+## 🧠 Calculation Logic
+
+The app calculates interest on a **monthly basis** using the selected rate. It handles partial months (days) as a fraction of a 30-day month.
+
+### 1. Simple Interest Mode
+- Interest is calculated every month based on the **initial principal**.
+- Total Interest is stored separately.
+- **Final Amount = Principal + Total Accumulated Interest.**
+
+### 2. Yearly Compound Mode
+- Interest is calculated every month but **held in a temporary accrual**.
+- At the end of every **12th month**, the accrued interest is added to the Principal.
+- The **New Principal** is used for the next year's calculation.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Core:** HTML5, CSS3, Vanilla JavaScript (ES6+)
+- **Libraries:**
+  - `Chart.js` (Data Visualization)
+  - `html2canvas` (Screenshot generation)
+- **Deployment:** Vercel / GitHub Pages
+
+---
+
+## 📸 Screenshots
+
+| Light Mode | Dark Mode |
+|:---:|:---:|
+| *(Add screenshot here)* | *(Add screenshot here)* |
