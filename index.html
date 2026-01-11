@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interest Calculator Pro</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#4f46e5">
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box;font-family:system-ui;}
+:root{
+--bg:#f6f7fb;--card:#fff;--text:#111;--accent:#4f46e5;
+}
+body{margin:0;background:var(--bg);color:var(--text);}
+body.dark{--bg:#020617;--card:#020617;--text:#e5e7eb;--accent:#6366f1;}
+
+.app{max-width:1000px;margin:auto;padding:14px}
+h1{text-align:center;font-size:1.4rem}
+
+.card{background:var(--card);border-radius:14px;padding:14px;
+box-shadow:0 8px 20px rgba(0,0,0,.08);margin-bottom:14px}
+
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+
+label{font-weight:600;font-size:.9rem}
+input,select,button{
+width:100%;padding:10px;margin-top:6px;
+border-radius:10px;border:1px solid #ddd;font-size:1rem}
+
+button{background:var(--accent);color:#fff;border:none;font-weight:600;cursor:pointer}
+
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1;background:#e5e7eb;color:#111}
+body.dark .row button{background:#1e293b;color:#fff}
+
+.summary{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:700px){.summary{grid-template-columns:repeat(3,1fr)}}
+
+.box{background:#eef2ff;border-radius:12px;padding:12px;text-align:center;font-weight:700}
+body.dark .box{background:#020617;border:1px solid #1e293b}
+.box div{font-size:1.3rem;margin-top:4px;color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
+th{background:#eef2ff;text-align:center}
+td:first-child,th:first-child{text-align:center}
+canvas{max-height:350px}
+</style>
+</head>
+
+<body>
+<div class="app" id="app">
+<h1>📈 Interest Calculator Pro</h1>
+
+<div class="card">
+<div class="row">
+<button onclick="setYears(1)">1 Year</button>
+<button onclick="setYears(3)">3 Years</button>
+<button onclick="setYears(5)">5 Years</button>
+<button onclick="setYears(10)">10 Years</button>
+<button onclick="toggleTheme()">🌗 Theme</button>
+</div>
+
+<div class="grid" style="margin-top:10px">
+<div><label>Start Date</label><input type="date" id="startDate"></div>
+<div><label>End Date</label><input type="date" id="endDate"></div>
+</div>
+
+<label>Or Enter Months (optional)</label>
+<input type="number" id="monthsInput" placeholder="e.g. 15">
+
+<label>Principal (₹)</label>
+<input type="number" id="principal" step="0.01">
+
+<label>Interest Type</label>
+<select id="interestType">
+<option value="flat">₹ per month</option>
+<option value="per100">₹ per month per 100</option>
+<option value="percent">% per month</option>
+</select>
+
+<label>Interest Value</label>
+<input type="number" id="rate" step="0.01">
+
+<button onclick="calculate()">Calculate</button>
+</div>
+
+<div id="outputWrapper"><div id="output"></div></div>
+</div>
+
+<script>
+const formatINR=n=>n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function toggleTheme(){
+document.body.classList.toggle("dark");
+localStorage.theme=document.body.classList.contains("dark")?"dark":"light";
+}
+if(localStorage.theme==="dark")document.body.classList.add("dark");
+
+function setYears(y){
+const s=new Date();
+const e=new Date();e.setFullYear(s.getFullYear()+y);
+startDate.value=s.toISOString().split("T")[0];
+endDate.value=e.toISOString().split("T")[0];
+monthsInput.value=y*12;
+}
+
+function getMonths(){
+const m=parseFloat(monthsInput.value);
+if(m>0)return m;
+const s=new Date(startDate.value),e=new Date(endDate.value);
+return (e-s)/(1000*60*60*24)/30;
+}
+
+function monthlyInterest(p){
+const r=parseFloat(rate.value);
+if(interestType.value==="flat")return r;
+if(interestType.value==="percent")return p*r/100;
+return (p/100)*r;
+}
+
+function calculate(){
+let p=parseFloat(principal.value);
+let months=getMonths();
+if(p<=0||months<=0)return alert("Invalid input");
+
+let full=Math.floor(months),frac=months-full;
+let totalInt=0,yearInt=0,yearStart=p;
+let mRows="",yRows="";
+let chartData=[p],labels=["Start"];
+
+let month=1,year=1;
+
+for(let i=1;i<=full;i++){
+let mi=monthlyInterest(p);
+yearInt+=mi;totalInt+=mi;
+
+mRows+=`<tr><td>${month}</td><td>${formatINR(p)}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
+
+if(i%12===0){
+p+=yearInt;
+labels.push("Y"+year);
+chartData.push(p);
+
+yRows+=`<tr><td>${year}</td><td>${formatINR(yearStart)}</td><td>${formatINR(yearInt)}</td><td>${formatINR(p)}</td></tr>`;
+year++;yearStart=p;yearInt=0;
+}
+month++;
+}
+
+if(frac>0){
+let mi=monthlyInterest(p)*frac;
+totalInt+=mi;yearInt+=mi;
+mRows+=`<tr><td>${month}*</td><td>${formatINR(p)}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
+}
+
+if(yearInt>0){
+yRows+=`<tr><td>${year}*</td><td>${formatINR(yearStart)}</td><td>${formatINR(yearInt)}</td><td>${formatINR(p+yearInt)}</td></tr>`;
+p+=yearInt;
+labels.push("Final");chartData.push(p);
+}
+
+window.shareData={p,totalInt,months};
+
+output.innerHTML=`
+<div class="card summary">
+<div class="box">Principal<div>₹ ${formatINR(principal.value)}</div></div>
+<div class="box">Total Interest<div>₹ ${formatINR(totalInt)}</div></div>
+<div class="box">Final Amount<div>₹ ${formatINR(p)}</div></div>
+</div>
+
+<div class="card">
+<canvas id="growthChart"></canvas>
+</div>
+
+<div class="card row">
+<button onclick="copyText()">📋 Copy Summary</button>
+<button onclick="downloadImage()">📸 Screenshot</button>
+</div>
+
+<div class="card"><h3>📆 Yearly</h3><table>
+<tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div>
+
+<div class="card"><h3>📅 Monthly</h3><table>
+<tr><th>Month</th><th>Principal</th><th>Interest</th><th>Total Interest</th></tr>${mRows}</table></div>
+`;
+
+drawChart(labels,chartData);
+}
+
+function drawChart(labels,data){
+new Chart(document.getElementById("growthChart"),{
+type:"line",
+data:{labels,datasets:[{label:"Principal Growth",data,tension:.3}]},
+options:{responsive:true,plugins:{legend:{display:false}}}
+});
+}
+
+function downloadImage(){
+html2canvas(document.getElementById("outputWrapper"),{scale:2})
+.then(c=>{
+let a=document.createElement("a");
+a.href=c.toDataURL();a.download="interest.png";a.click();
+});
+}
+
+function copyText(){
+const t=window.shareData;
+navigator.clipboard.writeText(
+`Interest Summary
+Principal: ₹ ${formatINR(principal.value)}
+Interest: ₹ ${formatINR(t.totalInt)}
+Final: ₹ ${formatINR(t.p)}
+Duration: ${t.months.toFixed(2)} months`);
+alert("Copied ✅");
+}
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js")
+    .then(() => console.log("PWA ready"))
+    .catch(err => console.error("SW failed", err));
+}
+</script>
+</body>
+</html>
