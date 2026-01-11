@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interest Calculator Pro</title>
-    <meta name="theme-color" content="#4f46e5" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="icons/android/android-launchericon-48-48.png"
+    />
 
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -43,7 +47,7 @@
         padding: 20px;
       }
 
-      /* --- HEADER SECTION --- */
+      /* --- HEADER --- */
       header {
         display: flex;
         justify-content: space-between;
@@ -69,7 +73,6 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        overflow: hidden;
       }
       #theme-icon {
         transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -79,7 +82,14 @@
         transform: rotate(360deg) scale(1.2);
       }
 
-      /* --- CARD & SECTIONING --- */
+      /* --- REQUIRED MARK --- */
+      .required::after {
+        content: " *";
+        color: #ef4444; /* Red color */
+        font-weight: bold;
+      }
+
+      /* --- CARD & SECTIONS --- */
       .card {
         background: var(--card);
         border-radius: 16px;
@@ -135,7 +145,7 @@
         border-color: var(--accent);
       }
 
-      /* --- PRESETS --- */
+      /* --- BUTTONS --- */
       .row-presets {
         display: flex;
         gap: 8px;
@@ -172,6 +182,13 @@
         border-radius: 12px;
         margin-top: 20px;
         box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        transition: all 0.3s ease;
+      }
+      .calculate-btn:disabled {
+        background-color: #cbd5e1;
+        box-shadow: none;
+        cursor: not-allowed;
+        opacity: 0.6;
       }
 
       /* --- RESULTS --- */
@@ -233,13 +250,17 @@
 
       <div class="card">
         <div class="section-header">
-          <span class="section-title">1. Duration Selection</span>
+          <span class="section-title">1. Duration</span>
         </div>
         <div class="grid grid-2">
           <div>
-            <label>Start Date</label><input type="date" id="startDate" />
+            <label class="required">Start Date</label
+            ><input type="date" id="startDate" />
           </div>
-          <div><label>End Date</label><input type="date" id="endDate" /></div>
+          <div>
+            <label class="required">End Date</label
+            ><input type="date" id="endDate" />
+          </div>
         </div>
         <div class="row-presets" id="yearPresets">
           <button onclick="setYears(1, this)">1 Year</button>
@@ -249,34 +270,38 @@
         </div>
         <div style="margin-top: 15px">
           <label>Or Enter Months (optional)</label>
-          <input type="number" id="monthsInput" placeholder="e.g. 15" />
+          <input
+            type="number"
+            id="monthsInput"
+            placeholder="Calculated from dates"
+          />
         </div>
       </div>
 
       <div class="card">
         <div class="section-header">
-          <span class="section-title">2. Principal & Interest Logic</span>
+          <span class="section-title">2. Financial Settings</span>
         </div>
         <div class="grid">
           <div>
-            <label>Principal (₹)</label>
+            <label class="required">Principal Amount (₹)</label>
             <input
               type="number"
               id="principal"
               step="0.01"
-              placeholder="Enter amount"
+              placeholder="0.00"
             />
           </div>
           <div class="grid grid-2">
             <div>
-              <label>Interest Logic</label>
+              <label class="required">Interest Logic</label>
               <select id="logicType">
-                <option value="compound">Yearly Compound</option>
                 <option value="simple">Simple Interest</option>
+                <option value="compound">Yearly Compound</option>
               </select>
             </div>
             <div>
-              <label>Interest Type</label>
+              <label class="required">Interest Type</label>
               <select id="interestType">
                 <option value="flat">₹ per month</option>
                 <option value="per100">₹ per month per 100</option>
@@ -285,11 +310,18 @@
             </div>
           </div>
           <div>
-            <label>Interest Value</label>
+            <label class="required">Interest Value / Rate</label>
             <input type="number" id="rate" step="0.01" placeholder="e.g. 2.0" />
           </div>
         </div>
-        <button class="calculate-btn" onclick="calculate()">CALCULATE</button>
+        <button
+          id="calcBtn"
+          class="calculate-btn"
+          onclick="calculate()"
+          disabled
+        >
+          CALCULATE
+        </button>
       </div>
 
       <div id="outputWrapper"><div id="output"></div></div>
@@ -301,8 +333,9 @@
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
+      document.getElementById("startDate").valueAsDate = new Date();
 
-      // Theme Logic with Animation
+      // Theme Toggle Logic
       function toggleTheme() {
         const body = document.body;
         const icon = document.getElementById("theme-icon");
@@ -319,6 +352,28 @@
       }
       if (localStorage.theme === "dark") toggleTheme();
 
+      // Validation Logic
+      function validateForm() {
+        const p = document.getElementById("principal").value;
+        const r = document.getElementById("rate").value;
+        const s = document.getElementById("startDate").value;
+        const e = document.getElementById("endDate").value;
+        const m = document.getElementById("monthsInput").value;
+        const btn = document.getElementById("calcBtn");
+
+        const hasPrincipal = p && parseFloat(p) > 0;
+        const hasRate = r && parseFloat(r) >= 0;
+        const hasTime = m || (s && e);
+
+        btn.disabled = !(hasPrincipal && hasRate && hasTime);
+      }
+
+      ["principal", "rate", "startDate", "endDate", "monthsInput"].forEach(
+        (id) => {
+          document.getElementById(id).addEventListener("input", validateForm);
+        }
+      );
+
       function setYears(y, btn) {
         document
           .querySelectorAll("#yearPresets button")
@@ -327,32 +382,38 @@
         const s = new Date();
         const e = new Date();
         e.setFullYear(s.getFullYear() + y);
-        startDate.value = s.toISOString().split("T")[0];
-        endDate.value = e.toISOString().split("T")[0];
-        monthsInput.value = y * 12;
+        document.getElementById("startDate").value = s
+          .toISOString()
+          .split("T")[0];
+        document.getElementById("endDate").value = e
+          .toISOString()
+          .split("T")[0];
+        document.getElementById("monthsInput").value = y * 12;
+        validateForm();
       }
 
       function getMonths() {
-        const m = parseFloat(monthsInput.value);
+        const m = parseFloat(document.getElementById("monthsInput").value);
         if (m > 0) return m;
-        const s = new Date(startDate.value),
-          e = new Date(endDate.value);
+        const s = new Date(document.getElementById("startDate").value);
+        const e = new Date(document.getElementById("endDate").value);
         return (e - s) / (1000 * 60 * 60 * 24) / 30;
       }
 
       function monthlyInterest(p) {
-        const r = parseFloat(rate.value);
-        if (interestType.value === "flat") return r;
-        if (interestType.value === "percent") return (p * r) / 100;
+        const r = parseFloat(document.getElementById("rate").value);
+        const type = document.getElementById("interestType").value;
+        if (type === "flat") return r;
+        if (type === "percent") return (p * r) / 100;
         return (p / 100) * r;
       }
 
-      // RESTORED ORIGINAL BUSINESS LOGIC + LOGIC TYPE
+      // Business Logic
       function calculate() {
-        let p = parseFloat(principal.value);
+        let p = parseFloat(document.getElementById("principal").value);
         let months = getMonths();
         const logic = document.getElementById("logicType").value;
-        if (p <= 0 || months <= 0) return alert("Invalid input");
+        if (p <= 0 || months <= 0) return alert("Invalid Input");
 
         let full = Math.floor(months),
           frac = months - full;
@@ -360,10 +421,9 @@
           yearInt = 0,
           yearStart = p;
         let mRows = "",
-          yRows = "";
-        let chartData = [p],
-          labels = ["Start"];
-
+          yRows = "",
+          labels = ["Start"],
+          chartData = [p];
         let month = 1,
           year = 1;
 
@@ -371,21 +431,19 @@
           let mi = monthlyInterest(p);
           yearInt += mi;
           totalInt += mi;
-
           mRows += `<tr><td>${month}</td><td>${formatINR(
             p
           )}</td><td>${formatINR(mi)}</td><td>${formatINR(totalInt)}</td></tr>`;
 
           if (i % 12 === 0) {
-            // Business Logic: Only update 'p' if logic is set to Compound
             if (logic === "compound") p += yearInt;
-
             labels.push("Y" + year);
-            chartData.push(p);
-
+            chartData.push(p + (logic === "simple" ? totalInt : 0));
             yRows += `<tr><td>${year}</td><td>${formatINR(
               yearStart
-            )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(p)}</td></tr>`;
+            )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(
+              p + (logic === "simple" ? totalInt : 0)
+            )}</td></tr>`;
             year++;
             yearStart = p;
             yearInt = 0;
@@ -407,40 +465,38 @@
           yRows += `<tr><td>${year}*</td><td>${formatINR(
             yearStart
           )}</td><td>${formatINR(yearInt)}</td><td>${formatINR(
-            finalP
+            finalP + (logic === "simple" ? totalInt : 0)
           )}</td></tr>`;
           p = finalP;
           labels.push("Final");
-          chartData.push(p);
+          chartData.push(p + (logic === "simple" ? totalInt : 0));
         }
 
-        window.shareData = { p, totalInt, months };
+        window.shareData = {
+          p: p + (logic === "simple" ? totalInt : 0),
+          totalInt,
+          months,
+        };
 
-        output.innerHTML = `
-    <div class="card summary-grid">
-        <div class="result-box"><span>Principal</span><div class="value">₹${formatINR(
-          parseFloat(principal.value)
-        )}</div></div>
-        <div class="result-box"><span>Interest Earned</span><div class="value">₹${formatINR(
-          totalInt
-        )}</div></div>
-        <div class="result-box highlight"><span>Total Amount</span><div class="value">₹${formatINR(
-          p
-        )}</div></div>
-    </div>
-
-    <div class="card"><canvas id="growthChart"></canvas></div>
-
-    <div class="grid grid-2" style="margin-bottom: 24px;">
-        <button class="theme-toggle" style="justify-content:center" onclick="copyText()">📋 Copy Summary</button>
-        <button class="theme-toggle" style="justify-content:center" onclick="downloadImage()">📸 Screenshot</button>
-    </div>
-
-    <div class="card"><h3>📆 Yearly Breakdown</h3><div class="table-container"><table>
-    <tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div></div>
-
-    <div class="card"><h3>📅 Monthly History</h3><div class="table-container"><table>
-    <tr><th>Month</th><th>Principal</th><th>Interest</th><th>Acc. Interest</th></tr>${mRows}</table></div></div>
+        document.getElementById("output").innerHTML = `
+        <div class="card summary-grid">
+            <div class="result-box"><span>Principal</span><div class="value">₹${formatINR(
+              parseFloat(document.getElementById("principal").value)
+            )}</div></div>
+            <div class="result-box"><span>Interest Earned</span><div class="value">₹${formatINR(
+              totalInt
+            )}</div></div>
+            <div class="result-box highlight"><span>Total Amount</span><div class="value">₹${formatINR(
+              window.shareData.p
+            )}</div></div>
+        </div>
+        <div class="card"><canvas id="growthChart"></canvas></div>
+        <div class="grid grid-2" style="margin-bottom:20px">
+            <button class="theme-toggle" style="justify-content:center" onclick="copyText()">📋 Copy Summary</button>
+            <button class="theme-toggle" style="justify-content:center" onclick="downloadImage()">📸 Screenshot</button>
+        </div>
+        <div class="card"><h3>📆 Yearly Breakdown</h3><div class="table-container"><table><tr><th>Year</th><th>Start</th><th>Interest</th><th>End</th></tr>${yRows}</table></div></div>
+        <div class="card"><h3>📅 Monthly History</h3><div class="table-container"><table><tr><th>Month</th><th>Principal</th><th>Interest</th><th>Acc. Interest</th></tr>${mRows}</table></div></div>
     `;
 
         drawChart(labels, chartData);
@@ -449,6 +505,7 @@
           .scrollIntoView({ behavior: "smooth" });
       }
 
+    
       function drawChart(labels, data) {
         new Chart(document.getElementById("growthChart"), {
           type: "line",
@@ -456,8 +513,8 @@
             labels,
             datasets: [
               {
-                label: "Total Value",
-                data,
+                label: "Value",
+                data: data, // Use the 'data' parameter passed into the function
                 borderColor: "#4f46e5",
                 fill: true,
                 tension: 0.4,
@@ -469,6 +526,17 @@
             plugins: { legend: { display: false } },
           },
         });
+      }
+      function copyText() {
+        const t = window.shareData;
+        navigator.clipboard.writeText(
+          `Interest Summary\nPrincipal: ₹${formatINR(
+            parseFloat(document.getElementById("principal").value)
+          )}\nInterest: ₹${formatINR(t.totalInt)}\nTotal: ₹${formatINR(
+            t.p
+          )}\nDuration: ${t.months.toFixed(2)} months`
+        );
+        alert("Copied ✅");
       }
 
       function downloadImage() {
@@ -482,18 +550,6 @@
           a.download = "interest.png";
           a.click();
         });
-      }
-
-      function copyText() {
-        const t = window.shareData;
-        navigator.clipboard.writeText(
-          `Interest Summary\nPrincipal: ₹${formatINR(
-            parseFloat(principal.value)
-          )}\nInterest: ₹${formatINR(t.totalInt)}\nFinal: ₹${formatINR(
-            t.p
-          )}\nDuration: ${t.months.toFixed(2)} months`
-        );
-        alert("Copied ✅");
       }
     </script>
   </body>
